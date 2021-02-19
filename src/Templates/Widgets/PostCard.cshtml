@@ -1,0 +1,72 @@
+@{
+    var post = Model;
+}
+
+<article class="post-card {{post_class}} {{#unless feature_image}}no-image{{else}}{{#is "home"}}{{#has index="nth:6"}}post-card-large{{/has}}{{/is}}{{/unless}}">
+
+    @if(post.ImageUrl != null){
+    <a class="post-card-image-link" href="/post/@post.Id/@(post.SeoName).html">
+        <!-- This is a responsive image, it loads different sizes depending on device
+        https://medium.freecodecamp.org/a-guide-to-responsive-images-with-ready-to-use-templates-c400bd65c433 -->
+        <img class="post-card-image"
+            srcset="{{img_url feature_image size="s"}} 300w,
+                    {{img_url feature_image size="m"}} 600w,
+                    {{img_url feature_image size="l"}} 1000w,
+                    {{img_url feature_image size="xl"}} 2000w"
+            sizes="(max-width: 1000px) 400px, 700px"
+            loading="lazy"
+            src="@post.ImageUrl"
+            alt="@post.Title"
+        />
+    </a>
+    }
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="{{url}}">
+
+            <header class="post-card-header">
+                @foreach(var cat in post.ListCategory){
+                    <div class="post-card-primary-tag">@cat</div>
+                }
+                <h2 class="post-card-title">@post.Title</h2>
+            </header>
+            @if (!string.IsNullOrEmpty(post.Excerpt)){
+                
+                
+            <section class="post-card-excerpt">
+                @if(post.ImageUrl!=null){
+                    <p>@(post.Excerpt.Length > 180 ? post.Excerpt.Substring(0, 180) + "..." : post.Excerpt)</p>
+                }else{
+                    <p>@(post.Excerpt.Length > 200 ? post.Excerpt.Substring(0, 200) + "..." : post.Excerpt)</p>
+                }
+            </section>
+            }
+
+        </a>
+
+        <footer class="post-card-meta">
+            <ul class="author-list">
+                <li class="author-list-item">
+                    <div class="author-name-tooltip">
+                        @post.CreatedBy
+                    </div>
+<!--             
+                    {{#if profile_image}}
+                    <a href="{{url}}" class="static-avatar">
+                        <img class="author-profile-image" src="{{img_url profile_image size="xs"}}" alt="{{name}}" />
+                    </a>
+                    {{else}}
+                    <a href="{{url}}" class="static-avatar author-profile-image">{{> "icons/avatar"}}</a>
+                    {{/if}} -->
+                </li>
+            </ul>
+            <div class="post-card-byline-content">
+                <span>@post.CreatedBy</span>
+                <span class="post-card-byline-date"><time datetime="@post.CreatedDateTime">@post.CreatedDateTime</time> <span class="bull">&bull;</span> {{reading_time}}</span>
+            </div>
+        </footer>
+
+    </div>
+
+</article>
