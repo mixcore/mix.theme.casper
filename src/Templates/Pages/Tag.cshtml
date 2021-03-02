@@ -1,0 +1,70 @@
+@using Mix.Theme.Blog
+@{
+    string assetFolder = MixCmsHelper.GetAssetFolder(ViewBag.culture); 
+    string templateFolder = MixCmsHelper.GetTemplateFolder(ViewBag.culture);
+    string culture = ViewBag.culture;
+
+
+    if(ViewData["keyword"]==null){
+        ViewData["keyword"] = "getting-started";
+    }
+
+    string keyword = ViewData["keyword"] as string;
+    var social = MixCmsHelper.GetModule("Social", ViewBag.culture);
+
+    
+    var tag = await Helper.GetTagInfo(keyword, ViewBag.culture);
+
+    
+    ViewBag.Title = tag.title;
+
+    var posts = await MixCmsHelper.GetPostlistByMeta<Mix.Cms.Lib.ViewModels.MixPosts.ReadViewModel>(
+        Context, 
+        keyword,
+        ViewBag.culture as string, 
+        MixDatabaseNames.SYSTEM_TAG);
+
+    ViewData["DetailsUrl"] = Model.DetailsUrl;
+
+    
+    var Site = new Site(ViewBag.culture, Url);
+}
+
+
+<script>
+    console.log('Model', @Json.Serialize(tag))
+</script>
+
+<header class="site-archive-header">
+    <partial name="../Widgets/SiteHeader.cshtml" model="Site" />
+    
+    <partial name="../Widgets/HeaderBackground.cshtml" model="Site.CoverImage"/> <!--Special HeaderBackground.cshtml partial to generate the background image-->
+        <div class="inner site-header-content">
+            <h1 class="site-title">@tag.title</h1>
+            <h2 class="site-description">
+                @if(tag.description!=null){
+                    <TEXT>
+                    @tag.description
+                    </TEXT>
+                }else{
+                    <TEXT>
+                    A collection of @posts.Data.Items.Count posts
+                    </TEXT>
+                }
+            </h2>
+        </div>
+    </div>
+</header>
+<!-- The main content area -->
+<main id="site-main" class="site-main outer">
+    <div class="inner posts">
+        <div class="post-feed">
+            @foreach (var post in posts.Data.Items)
+            {
+                <!-- The tag below includes the markup for each post - partials/post-card.hbs -->
+                <partial name="../Widgets/PostCard.cshtml" model="post" />
+            }
+        </div>
+        <partial name="../Widgets/_Pagination.cshtml" model="posts.Data"/>
+    </div>
+</main>

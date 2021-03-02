@@ -5,7 +5,7 @@
     string assetFolder = MixCmsHelper.GetAssetFolder(ViewBag.culture); 
     string templateFolder = MixCmsHelper.GetTemplateFolder(ViewBag.culture);
     string culture = ViewBag.culture;
-    var social = Mix.Cms.Lib.MixCmsHelper.GetModule("Social", ViewBag.culture);
+    var social = MixCmsHelper.GetModule("Social", ViewBag.culture);
     ViewData["DetailsUrl"] = Model.DetailsUrl;
 }
 <div>

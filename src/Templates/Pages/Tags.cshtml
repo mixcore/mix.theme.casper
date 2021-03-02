@@ -3,9 +3,12 @@
 
     var Site = new Site(ViewBag.culture, Url);
     var posts = await Helper.GetPosts(ViewBag.culture);
+    var tags = (await MixDatas.ReadMvcViewModel.Repository.GetModelListByAsync(
+        m=>m.MixDatabaseName == "sys_tag"
+    )).Data.Select(m=>m.Obj);
 
 }
-
+@Json.Serialize(tags);
 <!-- Landing page -->
 @if (Site != null)
 {

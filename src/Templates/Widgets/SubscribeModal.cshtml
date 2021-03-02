@@ -1,0 +1,94 @@
+@{
+    var Site = Model; 
+}
+
+<!-- The big email subscribe modal content -->
+@if(Site.IsAllowMembers){
+    <div class="subscribe-notification subscribe-success-message">
+        <a class="subscribe-close-button" href="javascript:;"></a>
+        You've successfully subscribed to @Site.Title!
+    </div>
+    <div class="subscribe-notification subscribe-failure-message">
+        <a class="subscribe-close-button" href="javascript:;"></a>
+        Could not sign up! Invalid sign up link.
+    </div>
+
+    <div id="subscribe" class="subscribe-overlay">
+        <a class="subscribe-close-overlay" href="#"></a>
+        <a class="subscribe-close-button" href="#"></a>
+        <div class="subscribe-overlay-content">
+            @if (@Site.Logo != String.Empty){
+                <img class="subscribe-overlay-logo" src="@Site.Logo" alt="@Site.Title" />
+            }
+            <div class="subscribe-form">
+                <h1 class="subscribe-overlay-title">Subscribe to @Site.Title</h1>
+                <p class="subscribe-overlay-description">Stay up to date! Get all the latest & greatest posts delivered straight to your inbox</p>
+                <form id="subscribeForm" data-members-form="subscribe">
+                    <div class="form-group">
+                        <input name="subscribedEmail" class="subscribe-email" data-members-email placeholder="youremail@@example.com"
+                            autocomplete="false" />
+                        <button class="button primary" type="submit">
+                            <span class="button-content">Subscribe</span>
+                            <span class="button-loader">{{> "icons/loader"}}</span>
+                        </button>
+                    </div>
+                    <div class="message-success">
+                        <strong>Great!</strong> Check your inbox and click the link to confirm your subscription.
+                    </div>
+                    <div class="message-error">
+                        Please enter a valid email address!
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+        
+    <script>
+    // Attach a submit handler to the form
+    $( "#subscribeForm" ).submit(function( event ) {
+
+    // Stop form from submitting normally
+    event.preventDefault();
+    
+    // Get some values from elements on the page:
+    var $form = $( this ),
+        email = $form.find( "input[name='subscribedEmail']" ).val(),
+
+        url = "/api/v1/rest/@ViewBag.culture/mix-database-data/client"; // https://api-docs.mixcore.org/api/Mix.Cms.Api.RestFul.Controllers.v1.ApiAttributeSetDataController.html
+        
+        data = JSON.stringify({ 
+            "mixDatabaseName": "subscribe",
+                "obj": {
+                    "id": null,
+                    "subscribed_email": email
+                }    
+        });
+
+        $.ajax({
+            'type': 'POST',
+            'url': url,
+            'contentType': 'application/json',
+            'data': data,
+            'dataType': 'json',
+            // 'success': function() {
+            //     //alert( "success!" );
+            //     $('#subscribeModal .modal-body').html("Thanks for subscribing! We will keep you posted.");
+            //     $('#subscribeModal').modal('show');
+            // },
+            statusCode: {
+                200: function() {
+                    $('#subscribeModal .modal-body').html("Thanks for subscribing! We will keep you posted.");
+                    $('#subscribeModal').modal('show');
+                },
+                400: function() {
+                    $('#subscribeModal .modal-body').html("Submitted email is existed! Please resubmit with another email.");
+                    $('#subscribeModal').modal('show');
+                }
+            }
+        });
+    
+    });
+    </script>
+
+}

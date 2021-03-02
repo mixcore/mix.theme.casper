@@ -1,124 +1,25 @@
 @{
-    Site site = new Site();
-    site.logo = MixService.GetConfig<string>("SiteLogo", ViewBag.culture);
-    site.title = MixService.GetConfig<string>("SiteTitle", ViewBag.culture);
-    site.description = MixService.GetConfig<string>("SiteDescription", ViewBag.culture);
-    site.coverImage = MixService.GetConfig<string>("SiteCoverImage", ViewBag.culture);
-    site.url = MixService.GetConfig<string>(MixAppSettingKeywords.Domain);
-}
-@functions{
-    //public static readonly string __siteHome = "http://www.example.com";
-    //public static readonly string __siteResource = "http://resource.example.com";
-
-    public class Site{
-        private string _logo; // field
-        public string logo {
-            get { return _logo; }
-            set { _logo = value; }
-        }
-
-        private string _title; // field
-        public string title {
-            get { return _title; }
-            set { _title = value; }
-        }
-        
-        private string _description; // field
-        public string description {
-            get { return _description; }
-            set { _description = value; }
-        }
-
-        private string _coverImage; // field
-        public string coverImage {
-            get { return _coverImage; }
-            set { _coverImage = value; }
-        }
-
-        private string _url; // field
-        public string url {
-            get { return _url; }
-            set { _url = value; }
-        }
-        
-    }
-
-    public string img_url(string url, string size){
-        string[] tmp = url.Split('.');
-        string rtn = "";
-        for(int i = 0; i<tmp.Length; i++){
-            rtn+=tmp[i];
-            if(i<tmp.Length-1){
-                rtn+="_"+size+".";
-            }
-        }
-        return url; //TODO: check with Hoang on image size
-    }
+    var Site = Model;
 }
 
 <!-- Home Header -->
 
 <header class="site-home-header">
-    @if(site.coverImage!=String.Empty){
-        
-        /*
-        Wow what the hell is going on in here even?
-
-        Ok so, several templates use this big header with a giant BG image. Nice idea, but big images
-        have a heavy impact on performance, so it's a good idea to make them responsive. Because we
-        can only get the image dynamically using Handlebars, and we can only set the image to properly
-        be a background image using CSS, we end up with a handful of inline styles.
-
-        If the template in question has a background image, then we render responsive image styles
-        for it, and apply those styles to the <header> tag. Else, we just output a <header> tag
-        with a `no-image` class so we can style it accordingly.
-        */
-        <TEXT>
-            <style type="text/css">
-                .responsive-header-img {
-                    background-image: url(@img_url(site.coverImage,"xl"));
-                }
-
-                @@media(max-width: 1000px) {
-                    .responsive-header-img {
-                        background-image: url(@img_url(site.coverImage,"l"));
-                        background-image: -webkit-image-set(url(@img_url(site.coverImage,"l")) 1x,
-                            url(@img_url(site.coverImage,"xl")) 2x);
-                        background-image: image-set(url(@img_url(site.coverImage,"l")) 1x,
-                            url(@img_url(site.coverImage,"xl")) 2x);
-                    }
-                }
-
-                @@media(max-width: 600px) {
-                    .responsive-header-img {
-                        background-image: url(@img_url(site.coverImage,"m"));
-                        background-image: -webkit-image-set(url(@img_url(site.coverImage,"m")) 1x,
-                            url(@img_url(site.coverImage,"l")) 2x);
-                        background-image: image-set(url(@img_url(site.coverImage,"m")) 1x,
-                            url(@img_url(site.coverImage,"l")) 2x);
-                    }
-                }
-            </style>
-            <div class="outer site-header-background responsive-header-img">
-        </TEXT>
-    }else{
-        <TEXT>
-            <div class="outer site-header-background no-image">
-        </TEXT>
-    }
+    <partial name="../Widgets/HeaderBackground.cshtml" model="Site.CoverImage"/>
+    
         <div class="inner">
-            {{> "site-nav"}}
+            <partial name="../widgets/SiteNav.cshtml" model="Site"/>
             <div class="site-header-content">
                 <h1 class="site-title">
-                    @if(site.logo!=""){
-                        <img class="site-logo" src="@site.logo" alt="@site.title" />
+                    @if(Site.Logo!=""){
+                        <img class="site-logo" src="@Site.Logo" alt="@Site.Title" />
                     }else{
                         <TEXT>
-                        @site.title
+                        @Site.Title
                         </TEXT>
                     }
                 </h1>
-                <h2 class="site-description">@site.description</h2>
+                <h2 class="site-description">@Site.Description</h2>
             </div>
         </div>
     </div>

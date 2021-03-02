@@ -1,44 +1,62 @@
+@using Mix.Theme.Blog
 @{
-    var post = Model;
+    var Post = Model;
+    string url = "/post/"+Post.Id+"/"+Post.SeoName+".html";
 }
 
-<article class="post-card {{post_class}} {{#unless feature_image}}no-image{{else}}{{#is "home"}}{{#has index="nth:6"}}post-card-large{{/has}}{{/is}}{{/unless}}">
+<script>
+    console.log('Model', @Json.Serialize(Post))
+</script>
 
-    @if(post.ImageUrl != null){
-    <a class="post-card-image-link" href="/post/@post.Id/@(post.SeoName).html">
+<article class="post-card 
+    @if(Post.ImageUrl == null){
+        <TEXT>
+         no-image 
+        </TEXT>
+    }else{
+        if(ViewData["index"]!=null && (int)ViewData["index"] % 6 == 0){
+            <TEXT>
+            post-card-large 
+            </TEXT>
+        }
+    }
+    ">
+
+    @if(Post.ImageUrl != null){
+    <a class="post-card-image-link" href="@url">
         <!-- This is a responsive image, it loads different sizes depending on device
         https://medium.freecodecamp.org/a-guide-to-responsive-images-with-ready-to-use-templates-c400bd65c433 -->
         <img class="post-card-image"
-            srcset="{{img_url feature_image size="s"}} 300w,
-                    {{img_url feature_image size="m"}} 600w,
-                    {{img_url feature_image size="l"}} 1000w,
-                    {{img_url feature_image size="xl"}} 2000w"
+            srcset="@Post.ImageUrl 300w,
+                    @Post.ImageUrl 600w,
+                    @Post.ImageUrl 1000w,
+                    @Post.ImageUrl 2000w"
             sizes="(max-width: 1000px) 400px, 700px"
             loading="lazy"
-            src="@post.ImageUrl"
-            alt="@post.Title"
+            src="@Post.ImageUrl"
+            alt="@Post.Title"
         />
     </a>
     }
 
     <div class="post-card-content">
 
-        <a class="post-card-content-link" href="{{url}}">
+        <a class="post-card-content-link" href="@url">
 
             <header class="post-card-header">
-                @foreach(var cat in post.ListCategory){
-                    <div class="post-card-primary-tag">@cat</div>
+                @foreach(var tag in Post.ListTag){
+                    <div class="post-card-primary-tag">@tag</div>
                 }
-                <h2 class="post-card-title">@post.Title</h2>
+                <h2 class="post-card-title">@Post.Title</h2>
             </header>
-            @if (!string.IsNullOrEmpty(post.Excerpt)){
+            @if (!string.IsNullOrEmpty(Post.Excerpt)){
                 
                 
             <section class="post-card-excerpt">
-                @if(post.ImageUrl!=null){
-                    <p>@(post.Excerpt.Length > 180 ? post.Excerpt.Substring(0, 180) + "..." : post.Excerpt)</p>
+                @if(Post.ImageUrl!=null){
+                    <p>@(Post.Excerpt.Length > 180 ? Post.Excerpt.Substring(0, 180) + "..." : Post.Excerpt)</p>
                 }else{
-                    <p>@(post.Excerpt.Length > 200 ? post.Excerpt.Substring(0, 200) + "..." : post.Excerpt)</p>
+                    <p>@(Post.Excerpt.Length > 200 ? Post.Excerpt.Substring(0, 200) + "..." : Post.Excerpt)</p>
                 }
             </section>
             }
@@ -46,25 +64,27 @@
         </a>
 
         <footer class="post-card-meta">
+            @if(Post.Author!=null){
             <ul class="author-list">
                 <li class="author-list-item">
                     <div class="author-name-tooltip">
-                        @post.CreatedBy
+                        @Post.Author.fullname
                     </div>
-<!--             
-                    {{#if profile_image}}
-                    <a href="{{url}}" class="static-avatar">
-                        <img class="author-profile-image" src="{{img_url profile_image size="xs"}}" alt="{{name}}" />
-                    </a>
-                    {{else}}
-                    <a href="{{url}}" class="static-avatar author-profile-image">{{> "icons/avatar"}}</a>
-                    {{/if}} -->
+     
+                    @if(Post.Author.avatar!=null){
+                        <a href="/author/@Post.CreatedBy" class="static-avatar">
+                            <img class="author-profile-image" src="@Post.Author.avatar" alt="@Post.Author.fullname" />
+                        </a>
+                    }else{
+                        <a href="/author/@Post.CreatedBy" class="static-avatar author-profile-image"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path d="M3.513 18.998C4.749 15.504 8.082 13 12 13s7.251 2.504 8.487 5.998C18.47 21.442 15.417 23 12 23s-6.47-1.558-8.487-4.002zM12 12c2.21 0 4-2.79 4-5s-1.79-4-4-4-4 1.79-4 4 1.79 5 4 5z" fill="#FFF"/></g></svg></a>
+                    }
                 </li>
             </ul>
             <div class="post-card-byline-content">
-                <span>@post.CreatedBy</span>
-                <span class="post-card-byline-date"><time datetime="@post.CreatedDateTime">@post.CreatedDateTime</time> <span class="bull">&bull;</span> {{reading_time}}</span>
+                <span>@Post.Author.fullname</span>
+                <span class="post-card-byline-date"><time datetime="@Post.CreatedDateTime">@Post.CreatedDateTime.ToString("dd MMM yyyy")</time> <span class="bull">&bull;</span> @Helper.CountReadingTime(@Post.Content) MIN READ</span>
             </div>
+            }
         </footer>
 
     </div>

@@ -1,27 +1,69 @@
+@using System.Text.RegularExpressions
+
 @{
-    var detailsUrl = (string)this.ViewData["DetailsUrl"];
+    string BuildUrl(string key, string value)
+    {
+        var builder = new System.UriBuilder("https://" + Context.Request.Host + Context.Request.Path);
+        var query = System.Web.HttpUtility.ParseQueryString(Context.Request.QueryString.ToString());
+        query[key] = value;
+        builder.Query = query.ToString();
+        return builder.ToString();        
+    }
+    int padding = Model.PageSize < 2 ? Model.PageSize: 2;
+    int from = Model.Page - padding;
+    from = from < 0 ? 0: from;
+    int to = Model.Page + padding;
+    to = to > Model.TotalPage ? Model.TotalPage: to;
 }
-@if (Model.TotalPage > 1)
+<script>
+    console.log('paging Model', @Json.Serialize(Model))
+</script>
+<!-- <h1>Page:@Model.Page</h1>
+<h1>Total:@Model.TotalPage @from @to</h1> -->
+@if (Model != null && Model.TotalPage > 0)
 {
-<nav aria-label="Page navigation example">
-    <ul class="pagination justify-content-center">
-        @if (Model.PageIndex > 0)
+  <nav class="pagination" role="navigation">
+    @if (Model.Page > 1)
+    {
+        <a class="newer-posts" href="@BuildUrl("page", (Model.Page - 1).ToString())">&larr; Newer Posts</a>
+    }
+    @if (@Model.TotalPage > 1){
+      <span class="page-number">Page @Model.Page of @Model.TotalPage</span>
+    }
+    @if (Model.Page <= Model.TotalPage - 1)
+    {
+        <a class="older-posts" href="@BuildUrl("page", (Model.Page + 1).ToString())">Older Posts &rarr;</a>
+    }
+  </nav>
+<!-- <nav aria-label="Page navigation example my-5">
+  <ul class="pagination justify-content-center">
+    @if (Model.Page > 1)
+    {
+    <li class="page-item">
+      <a class="page-link" href="@BuildUrl("page", (Model.Page - 1).ToString())" tabindex="-1">Previous</a>
+    </li>
+    }
+    @for (int page = from; page <= to; page++)
+    {
+        if (page > 0 && page <= Model.TotalPage)
         {
-        <li class="page-item">
-            <a class="page-link" href="@detailsUrl/?page=@(Model.Page - 1)" tabindex="-1" aria-disabled="true">Previous</a>
-        </li>
+            string cssClass = "";
+            string url = BuildUrl("page", page.ToString());
+            if (page == Model.Page)
+            {
+                cssClass = "active";
+                url = "javascript:void(0);";
+            }
+            <li class="page-item @cssClass"><a class="page-link" href="@url">@Html.Raw(page)</a></li>
         }
-        @for (int i = 0; i < Model.TotalPage; i++)
-        {
-            string cl = i == Model.PageIndex ? "active" : string.Empty;
-            <li class="page-item @cl"><a class="page-link" href="@detailsUrl/?page=@(i + 1)">@(i + 1)</a></li>
-        }
-        @if (Model.PageIndex < Model.TotalPage - 1)
-        {
-        <li class="page-item">
-        <a class="page-link" href="@detailsUrl/?page=@(Model.Page + 1)">Next</a>
-        </li>
-        }
-    </ul>
-</nav>
+    }
+    
+    @if (Model.Page < Model.TotalPage - 1)
+    {
+    <li class="page-item">
+      <a class="page-link" href="@BuildUrl("page", (Model.Page + 1).ToString())">Next</a>
+    </li>
+    }
+  </ul>
+</nav> -->
 }

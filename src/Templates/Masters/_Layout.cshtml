@@ -1,6 +1,11 @@
+@using Mix.Theme.Blog
 @{ 
-    string assetFolder = Mix.Cms.Lib.MixCmsHelper.GetAssetFolder(ViewBag.culture);
+    string assetFolder = MixCmsHelper.GetAssetFolder(ViewBag.culture);
+
+    var Site = new Site(ViewBag.culture, Url);
+
 }
+
 <!DOCTYPE html>
 <html lang="@ViewBag.culture">
 
@@ -11,28 +16,12 @@
     <base href="/@ViewBag.culture">
 
     <!-- Base Meta -->
-    <title>@ViewBag.Title</title>
+    <title>@ViewBag.Title @ViewData["keyword"]</title>
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Styles'n'Scripts -->
     <link rel="stylesheet" type="text/css" href="@assetFolder/built/screen.css" />
-
-    <!-- This tag outputs SEO meta+structured data and other important settings -->
-    
-    @RenderSection("Seo", false)     
-    <!--[STYLES]-->
-    @RenderSection("Styles", false)    
-</head>
-
-<body class="@ViewData["PageClass"]">    
-    <div class="site-wrapper">
-
-        @RenderBody()
-        <!-- The footer at the very bottom of the screen -->
-        <partial name="../Modules/Footer.cshtml"/>
-
-    </div>
 
     <!-- jQuery, required for fitvids -->
     <script
@@ -40,8 +29,67 @@
         integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
         crossorigin="anonymous">
     </script>
+    
+    <!-- This tag outputs SEO meta+structured data and other important settings -->
+    
+    @RenderSection("Seo", false)     
+    <!--[STYLES]-->
+    @RenderSection("Styles", false)    
+</head>
+
+<body class="@ViewData["ViewMode"] @ViewData["BodyClass"]">    
+    <div class="site-wrapper">
+
+        @RenderBody()
+        <!-- The footer at the very bottom of the screen -->
+        <partial name="../Modules/Footer.cshtml" model="Site"/>
+
+    </div>
+
+    
+
+    
     <!-- Fitvids (for responsive video embeds), infinite scroll, floating header, and gallery card support -->
     <script src="@assetFolder/built/casper.js"></script>
+
+    
+    <!-- Scripts for Members subscription -->
+    <script>
+        // Parse the URL parameter
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
+
+        // Give the parameter a variable name
+        var action = getParameterByName('action');
+        var success = getParameterByName('success');
+
+        $(document).ready(function () {
+            if (action == 'subscribe' && (success === null || success === 'true')) {
+                $('body').addClass('subscribe-success');
+            }
+
+            if (action == 'subscribe' && success === 'false') {
+                $('body').addClass('subscribe-failure');
+            }
+
+            $('.subscribe-notification .subscribe-close-button').click(function () {
+                $('.subscribe-notification').addClass('close');
+            });
+
+            // Reset form on opening subscrion overlay
+            $('.subscribe-button').click(function() {
+                $('.subscribe-overlay form').removeClass();
+                $('.subscribe-email').val('');
+            });
+        });
+    </script>
 
     <!--[SCRIPTS]-->
     @RenderSection("Scripts", false)

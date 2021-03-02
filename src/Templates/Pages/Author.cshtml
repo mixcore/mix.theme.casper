@@ -1,0 +1,83 @@
+@using Mix.Theme.Blog
+@{
+    string culture = ViewBag.culture;
+    string assetFolder = MixCmsHelper.GetAssetFolder(culture); 
+    string templateFolder = MixCmsHelper.GetTemplateFolder(culture);
+    
+    string keyword = ViewData["keyword"] as string;
+    var social = MixCmsHelper.GetModule("Social", culture);
+
+    
+    var author = await Helper.GetAuthorInfo(keyword, culture);
+    
+    if(author==null){
+        Context.Response.Redirect("/404");
+    }
+
+    var posts = await Helper.GetPostsByAuthor(keyword, culture);
+
+    ViewData["DetailsUrl"] = Model.DetailsUrl;
+
+    
+    var Site = new Site(culture, Url);
+}
+
+
+<script>
+    console.log('Model', @Json.Serialize(author))
+</script>
+
+<header class="site-archive-header">
+    <partial name="../Widgets/SiteHeader.cshtml" model="Site" />
+    <partial name="../Widgets/HeaderBackground.cshtml" model="Site.CoverImage"/> <!--Special HeaderBackground.cshtml partial to generate the background image-->
+        <div class="inner">
+            <div class="site-header-content author-header">
+                @if(author.avatar!=String.Empty){
+                    <img class="author-profile-image" src="@author.avatar" alt="@author.fullname" />
+                }else{
+                    <span class="author-profile-image">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path d="M3.513 18.998C4.749 15.504 8.082 13 12 13s7.251 2.504 8.487 5.998C18.47 21.442 15.417 23 12 23s-6.47-1.558-8.487-4.002zM12 12c2.21 0 4-2.79 4-5s-1.79-4-4-4-4 1.79-4 4 1.79 5 4 5z" fill="#FFF"/></g></svg>
+                    </span>
+                }
+                <div class="author-header-content">
+                    <h1 class="site-title">@author.fullname</h1>
+                    @if(author.about!=String.Empty){
+                        <h2 class="author-bio">@author.about</h2>
+                    }
+                    <div class="author-meta">
+                        @if(author.location!=String.Empty){
+                            <div class="author-location">@author.location</div>
+                        }
+                        <div class="author-stats">
+                            @(posts.Data.Items.Count>1?posts.Data.Items.Count + " POSTS":posts.Data.Items.Count+" POST")
+                        </div>
+                        @if(author.website!=String.Empty){
+                            <span class="author-social-link"><a href="@author.website" target="_blank" rel="noopener">Website</a></span>
+                        }
+                        @if(author.twitter!=String.Empty){
+                            <span class="author-social-link"><a href="@author.twitter" target="_blank" rel="noopener">Twitter</a></span>
+                        }
+                        @if(author.facebook!=String.Empty){
+                            <span class="author-social-link"><a href="@author.facebook" target="_blank" rel="noopener">Facebook</a></span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- The main content area -->
+<main id="site-main" class="site-main outer">
+    <div class="inner posts">
+        <div class="post-feed">
+            @foreach (var post in posts.Data.Items)
+            {
+                <!-- The tag below includes the markup for each post - partials/post-card.hbs -->
+                <partial name="../Widgets/PostCard.cshtml" model="post" />
+            }
+
+        </div>
+        <partial name="../Widgets/_Pagination.cshtml" model="posts.Data"/>
+    </div>
+</main>

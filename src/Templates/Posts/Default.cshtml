@@ -1,0 +1,224 @@
+@using Mix.Theme.Blog
+@{
+
+    var Site = new Site(ViewBag.culture, Url);
+    
+    
+    Site.Post = Model;
+
+    string tagValue = "";
+    if(Site.Post.SysTags!=null){
+        foreach(var tag in Site.Post.SysTags){
+            tagValue = tag.AttributeData.Obj.slug;
+            break;
+        }
+    }
+
+    var postsByTag = await MixCmsHelper.GetPostlistByMeta<Mix.Cms.Lib.ViewModels.MixPosts.ReadMvcViewModel>(
+        Context, 
+        tagValue,
+        ViewBag.culture as string, 
+        MixDatabaseNames.SYSTEM_TAG, 4, 1);
+
+}
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "NewsArticle",
+  "headline": "@Model.Title",
+  "image": [
+    "@Model.ImageUrl"
+    ],
+  "datePublished": "@Model.CreatedDateTime",
+  "dateModified": "@Model.LastModified",
+  "author" : "@Model.CreatedBy",
+  "publisher" : {
+         "@@type": "Organization",
+         "name": "@(MixService.GetConfig<string>("SiteName", ViewBag.culture))",
+         "Logo": {
+            "@@type": "ImageObject",
+            "Url":"https://mixcore.org/assets/img/mixcore-Logo-green.png"
+         }
+      },
+  "mainEntityOfPage" : {
+         "@@type": "WebPage",
+         "@@id": "@Model.DetailsUrl"
+      }
+}
+</script>
+
+<script>
+   console.log('Model', @Json.Serialize(Site))
+</script>
+<div class="post-template">
+    
+    <!-- Post page -->
+    <header class="site-header">
+        <partial name="../Widgets/SiteHeader.cshtml" model="Site"/>
+        <partial name="../Widgets/SubscribeModal.cshtml" model="Site"/>
+    </header>
+
+    <main id="site-main" class="site-main outer">
+        <div class="inner">
+
+            <article class="post-full {{post_class}} {{#unless feature_image}}no-image{{/unless}}">
+
+                <header class="post-full-header">
+                    
+                    @if(Site.Post.SysTags!=null){
+                        foreach(var tag in Site.Post.SysTags){
+                            <section class="post-full-tags">
+                                <a href="/tag/@tag.AttributeData.Obj.slug">@tag.AttributeData.Obj.title</a>
+                            </section>
+                        }
+                    }
+
+                    <h1 class="post-full-title">@Site.Post.Title</h1>
+
+                    <p class="post-full-custom-excerpt">@Site.Post.Excerpt</p>
+
+                    <div class="post-full-byline">
+
+                        <section class="post-full-byline-content">
+
+                            <ul class="author-list">
+                                <li class="author-list-item">
+
+                                    <div class="author-card">
+                                        @if(Site.Post.Author.avatar!=null){
+                                            <img class="author-profile-image" src="@Site.Post.Author.avatar" alt="@Site.Post.Author.fullname" />
+                                        }else{
+                                            <div class="author-profile-image"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path d="M3.513 18.998C4.749 15.504 8.082 13 12 13s7.251 2.504 8.487 5.998C18.47 21.442 15.417 23 12 23s-6.47-1.558-8.487-4.002zM12 12c2.21 0 4-2.79 4-5s-1.79-4-4-4-4 1.79-4 4 1.79 5 4 5z" fill="#FFF"/></g></svg></div>
+                                        }
+                                        <div class="author-info">
+                                            @if(Site.Post.Author.about!=null){
+                                                <div class="bio">
+                                                    <h2>@Site.Post.Author.fullname</h2>
+                                                    <p>@Site.Post.Author.about</p>
+                                                    <p><a href="/author/@Site.Post.CreatedBy">More posts</a> by @Site.Post.Author.fullname.</p>
+                                                </div>
+                                            }else{
+                                                <h2>@Site.Post.Author.fullname</h2>
+                                                <p>Read <a href="/author/@Site.Post.CreatedBy">more posts</a> by this author.</p>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    @if(Site.Post.Author.avatar!=null){
+                                        <a href="/author/@Site.Post.CreatedBy" class="author-avatar">
+                                            <img class="author-profile-image" src="@Site.Post.Author.avatar" alt="@Site.Post.Author.fullname" />
+                                        </a>
+                                    }else{
+                                        <a href="/author/@Site.Post.CreatedBy" class="author-avatar author-profile-image"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path d="M3.513 18.998C4.749 15.504 8.082 13 12 13s7.251 2.504 8.487 5.998C18.47 21.442 15.417 23 12 23s-6.47-1.558-8.487-4.002zM12 12c2.21 0 4-2.79 4-5s-1.79-4-4-4-4 1.79-4 4 1.79 5 4 5z" fill="#FFF"/></g></svg></a>
+                                    }
+
+                                </li>
+                            </ul>
+
+                            <section class="post-full-byline-meta">
+                                <h4 class="author-name">@Site.Post.Author.fullname</h4>
+                                <div class="byline-meta-content">
+                                    <time class="byline-meta-date" datetime="{{date format="YYYY-MM-DD"}}">@Site.Post.CreatedDateTime.ToString("dd MMM yyyy")</time>
+                                    <span class="byline-reading-time"><span class="bull">&bull;</span> @Site.CountReadingTime(@Site.Post.Content) MIN READ</span>
+                                </div>
+                            </section>
+
+                        </section>
+
+
+                    </div>
+                </header>
+
+                @if(Site.Post.ImageUrl != null){
+                <figure class="post-full-image">
+                    <!-- This is a responsive image, it loads different sizes depending on device
+                    https://medium.freecodecamp.org/a-guide-to-responsive-images-with-ready-to-use-templates-c400bd65c433 -->
+                    <img
+                        srcset="{{ImgUrl feature_image size="s"}} 300w,
+                                {{ImgUrl feature_image size="m"}} 600w,
+                                {{ImgUrl feature_image size="l"}} 1000w,
+                                {{ImgUrl feature_image size="xl"}} 2000w"
+                        sizes="(max-width: 800px) 400px,
+                            (max-width: 1170px) 1170px,
+                                2000px"
+                        src="@Site.ImgUrl(Site.Post.ImageUrl,"xl")"
+                        alt="@Site.Post.Title"
+                    />
+                </figure>
+                }
+
+                <section class="post-full-content">
+                    <div class="post-content ql-editor">
+                        @Html.Raw(Model.Content)
+                    </div>
+                </section>
+
+                <!-- Email subscribe form at the bottom of the page -->
+                @if(Site.IsAllowMembers){
+                    <partial name="../Forms/SubscribeForm.cshtml" model="Site"/>
+                }
+
+                <!--
+                <section class="post-full-comments">
+                    If you want to embed comments, this is a good place to do it!
+                </section>
+                -->
+
+            </article>
+
+        </div>
+    </main>
+
+    <!-- Links to Previous/Next posts -->
+    <aside class="read-next outer">
+        <div class="inner">
+            <div class="read-next-feed">
+                @if(postsByTag.Data.Items!=null){
+                    <article class="read-next-card">
+                        <header class="read-next-card-header">
+                            <h3><span>More in</span> <a href="/tag/@tagValue">@tagValue</a></h3>
+                        </header>
+                        <div class="read-next-card-content">
+                            <ul>
+                                @foreach(var post in postsByTag.Data.Items){
+                                   
+                                <li>
+                                    <h4><a href="/post/@post.Id/@(post.SeoName).html">@post.Title</a></h4>
+                                    <div class="read-next-card-meta">
+                                        <p><time datetime="@post.CreatedDateTime.ToString("dd MMM yyyy")">@post.CreatedDateTime.ToString("dd MMM yyyy")</time> –
+                                            @Site.CountReadingTime(@post.Content) min read</p>
+                                    </div>
+                                </li>
+                                }
+                            </ul>
+                        </div>
+                        <footer class="read-next-card-footer">
+                            <a href="/tag/@tagValue">See all posts
+                                →</a>
+                        </footer>
+                    </article>
+                }
+
+                @for(int i=0;i<Site.Post.PostNavs.Count;i++){
+                    if(Site.Post.PostNavs[i].RelatedPost!=null){
+                        <partial name="../Widgets/PostCard.cshtml" model="Site.Post.PostNavs[i].RelatedPost"/>
+                    }
+                    
+                    <script>
+                    console.log('Model', @Json.Serialize(Site.Post.PostNavs[i].RelatedPost))
+                    </script>
+                }
+                {{!-- If there's a next post, display it using the same markup included from - partials/post-card.hbs --}}
+                {{#next_post}}
+                    {{> "post-card"}}
+                {{/next_post}}
+
+                {{!-- If there's a previous post, display it using the same markup included from - partials/post-card.hbs --}}
+                {{#prev_post}}
+                    {{> "post-card"}}
+                {{/prev_post}}
+            </div>
+        </div>
+    </aside>
+
+</div>

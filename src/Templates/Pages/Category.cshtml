@@ -8,6 +8,10 @@
     var social = MixCmsHelper.GetModule("Social", ViewBag.culture);
     ViewData["DetailsUrl"] = Model.DetailsUrl;
 }
+
+<script>
+    console.log('Model', @Json.Serialize(Model))
+</script>
 <div>
     
     <div class="page-header page-header-small">
@@ -57,7 +61,7 @@
             </div>
             <div class="row">
                 <div class="col-md-8 ml-auto mr-auto">
-                    @await Html.PartialAsync("../Widgets/_Pagination.cshtml", Model.Posts)
+                     @await Html.PartialAsync("../Widgets/_Pagination.cshtml", Model.Posts)
                 </div>
             </div>
         </div>

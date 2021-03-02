@@ -10,36 +10,94 @@ If the template in question has a background image, then we render responsive im
 for it, and apply those styles to the <header> tag. Else, we just output a <header> tag
 with a `no-image` class so we can style it accordingly.
 -->
-
-@if (Model != null){
-    <style type="text/css">
-        .responsive-header-img {
-            background-image: url({{img_url background size='xl'}});
-        }
-
-        @@media(max-width: 1000px) {
-            .responsive-header-img {
-                background-image: url({{img_url background size='l'}});
-                background-image: -webkit-image-set(url({{img_url background size='l'}}) 1x,
-                    url({{img_url background size='xl'}}) 2x);
-                background-image: image-set(url({{img_url background size='l'}}) 1x,
-                    url({{img_url background size='xl'}}) 2x);
+@{
+    var Site = new Site();
+    var image = Model;
+}
+@functions{
+    public class Site{
+        public string ImgUrl(string Url, string size){
+            string[] tmp = Url.Split('.');
+            string rtn = "";
+            for(int i = 0; i<tmp.Length; i++){
+                rtn+=tmp[i];
+                if(i<tmp.Length-1){
+                    rtn+="_"+size+".";
+                }
             }
+            return Url; 
         }
 
-        @@media(max-width: 600px) {
-            .responsive-header-img {
-                background-image: url({{img_url background size='m'}});
-                background-image: -webkit-image-set(url({{img_url background size='m'}}) 1x,
-                    url({{img_url background size='l'}}) 2x);
-                background-image: image-set(url({{img_url background size='m'}}) 1x,
-                    url({{img_url background size='l'}}) 2x);
-            }
+        public int CountWord(string Content){
+            //Convert the string into an array of words  
+            string[] source = Content.Split(new char[] { '.', '?', '!', ' ', ';', ':', ',' }, StringSplitOptions.RemoveEmptyEntries);  
+    
+            // Create the query.  Use ToLowerInvariant to match "data" and "Data"
+            //var matchQuery = from word in source  
+            //                where word.ToLowerInvariant() == searchTerm.ToLowerInvariant()  
+            //                select word;  
+    
+            // Count the matches, which executes the query.  
+            return source.Length;
         }
-    </style>
-    <div class="outer site-header-background responsive-header-img"></div>
+
+        public string CountReadingTime(string Content){
+            int totalSeconds = CountWord(Content)*1/4;
+            int seconds = totalSeconds % 60;
+            int minutes = totalSeconds / 60;
+            string time = minutes + ":" + seconds;
+            
+            return time;
+        }
+        
+    }
 
 }
-else{
-    <div class="outer site-header-background no-image"></div>
-}
+
+    @if(image!=String.Empty){
+        
+        /*
+        Wow what the hell is going on in here even?
+
+        Ok so, several templates use this big header with a giant BG image. Nice idea, but big images
+        have a heavy impact on performance, so it's a good idea to make them responsive. Because we
+        can only get the image dynamically using Handlebars, and we can only set the image to properly
+        be a background image using CSS, we end up with a handful of inline styles.
+
+        If the template in question has a background image, then we render responsive image styles
+        for it, and apply those styles to the <header> tag. Else, we just output a <header> tag
+        with a `no-image` class so we can style it accordingly.
+        */
+        <TEXT>
+            <style type="text/css">
+                .responsive-header-img {
+                    background-image: url(@Site.ImgUrl(image,"xl"));
+                }
+
+                @@media(max-width: 1000px) {
+                    .responsive-header-img {
+                        background-image: url(@Site.ImgUrl(image,"l"));
+                        background-image: -webkit-image-set(url(@Site.ImgUrl(image,"l")) 1x,
+                            url(@Site.ImgUrl(image,"xl")) 2x);
+                        background-image: image-set(url(@Site.ImgUrl(image,"l")) 1x,
+                            url(@Site.ImgUrl(image,"xl")) 2x);
+                    }
+                }
+
+                @@media(max-width: 600px) {
+                    .responsive-header-img {
+                        background-image: url(@Site.ImgUrl(image,"m"));
+                        background-image: -webkit-image-set(url(@Site.ImgUrl(image,"m")) 1x,
+                            url(@Site.ImgUrl(image,"l")) 2x);
+                        background-image: image-set(url(@Site.ImgUrl(image,"m")) 1x,
+                            url(@Site.ImgUrl(image,"l")) 2x);
+                    }
+                }
+            </style>
+            <div class="outer site-header-background responsive-header-img">
+        </TEXT>
+    }else{
+        <TEXT>
+            <div class="outer site-header-background no-image">
+        </TEXT>
+    }

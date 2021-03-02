@@ -1,86 +1,46 @@
 @{
-    Site site = new Site();
-    site.logo = MixService.GetConfig<string>("SiteLogo", ViewBag.culture);
-    site.title = MixService.GetConfig<string>("SiteTitle", ViewBag.culture);
-    site.description = MixService.GetConfig<string>("SiteDescription", ViewBag.culture);
-    site.coverImage = MixService.GetConfig<string>("SiteCoverImage", ViewBag.culture);
-    site.url = MixService.GetConfig<string>(MixAppSettingKeywords.Domain);
-}
-@functions {
-    public class Site{
-        private string _logo; // field
-        public string logo {
-            get { return _logo; }
-            set { _logo = value; }
-        }
-
-        private string _title; // field
-        public string title {
-            get { return _title; }
-            set { _title = value; }
-        }
-        
-        private string _description; // field
-        public string description {
-            get { return _description; }
-            set { _description = value; }
-        }
-
-        private string _coverImage; // field
-        public string coverImage {
-            get { return _coverImage; }
-            set { _coverImage = value; }
-        }
-
-        private string _url; // field
-        public string url {
-            get { return _url; }
-            set { _url = value; }
-        }
-        
-    }
+    var Site = Model;
 }
 <nav class="site-nav">
     <div class="site-nav-left-wrapper">
         <div class="site-nav-left">
-            @if (@site.logo != String.Empty){
-                <a class="site-nav-logo" href="@site.url"><img src="@site.logo" alt="@site.title" /></a>
+            @if (@Site.Logo != String.Empty){
+                <a class="site-nav-logo" href="@Site.Url"><img src="@Site.Logo" alt="@Site.Title" /></a>
             }else{
-                <a class="site-nav-logo" href="@site.url">@site.title</a>
+                <a class="site-nav-logo" href="@Site.Url">@Site.Title</a>
             }
             <div class="site-nav-content">
-                {{#if @@site.navigation}}
-                    {{navigation}}
-                {{/if}}
-                {{#is "post"}}
-                    <span class="nav-post-title {{#unless @@site.logo}}dash{{/unless}}">{{post.title}}</span>
-                {{/is}}
+                @if (Site.Navigation != null){
+                    <partial name="Navigation.cshtml" model="Site.Navigation"/>
+                }
+                @if(Site.Post != null){
+                    <span class="nav-post-title @(Site.Logo != String.Empty? "dash" : "")">@Site.Post.Title</span>
+                }
             </div>
         </div>
     </div>
     <div class="site-nav-right">
-        {{#if @@site.secondary_navigation}}
-            {{navigation type="secondary"}}
-        {{else}}
-            <div class="social-links">
-                {{#if @@site.facebook}}
-                    <a class="social-link social-link-fb" href="{{facebook_url @@site.facebook}}" title="Facebook" target="_blank" rel="noopener">{{> "icons/facebook"}}</a>
-                {{/if}}
-                {{#if @@site.twitter}}
-                    <a class="social-link social-link-tw" href="{{twitter_url @@site.twitter}}" title="Twitter" target="_blank" rel="noopener">{{> "icons/twitter"}}</a>
-                {{/if}}
-            </div>
-            {{#unless @@labs.members}}
-                <a class="rss-button" href="https://feedly.com/i/subscription/feed/@site.url/rss/" title="RSS" target="_blank" rel="noopener">{{> "icons/rss"}}</a>
-            {{/unless}}
-        {{/if}}
-
-        {{#if @@labs.members}}
-            {{#unless @@member}}
+        @if (Site.SecondaryNavigation?.MenuItems != null && Site.SecondaryNavigation?.MenuItems.Count > 0){
+            <partial name="Navigation.cshtml" model="Site.SecondaryNavigation"/>
+        }else{
+            @if (Site.SocialNavigation != null){
+                <div class="social-links">
+                @foreach (var item in Site.SocialNavigation.MenuItems)
+                {
+                    string activedClass = item.IsActive ? "nav-current" : string.Empty;
+                    
+                    <a class="social-link social-link-fb" href="@item.Uri" title="@item.Title" target="@item.Target" rel="noopener">@Html.Raw(item.Icon)</a>
+                }
+                </div>
+            }
+        }
+        @if(Site.IsAllowMembers)
+        {
+            @if(!User.Identity.IsAuthenticated){
                 <a class="subscribe-button" href="#subscribe">Subscribe</a>
-            {{else}}
-                <a class="subscribe-button" href="#/portal/account">Account</a>
-            {{/unless}}
-        {{/if}}
+            }else{
+                <a class="subscribe-button" href="/portal/my-profile">Account</a>
+            }
+        }
     </div>
 </nav>
