@@ -1,27 +1,19 @@
 @using Mix.Theme.Blog
 @{
-
-    var Site = new Site(ViewBag.culture, Url);
+    var site = new Site(ViewBag.culture, Url);
     var posts = await Helper.GetPosts(ViewBag.culture);
-
 }
-
 <!-- Landing page -->
-@if (Site != null)
-{
-    <partial name="../Modules/HomeHeader.cshtml" model="Site" />
-}
+<partial name="../Modules/HomeHeader.cshtml" model="site" />
 
 <!-- The main content area -->
 <main id="site-main" class="site-main outer">
     <div class="inner posts">
-
         <div class="post-feed">
             @{
                 int index = 0;
                 foreach (var post in posts.Data.Items)
                 {
-
                     <!-- The tag below includes the markup for each post - Widgets/PostCard.cshtml -->
                     <partial name="../Widgets/PostCard.cshtml" model="post" view-data='@new ViewDataDictionary(ViewData) { { "index", index } }' />
 
@@ -29,12 +21,8 @@
                 }
             }
         </div>
-
     </div>
 </main>
-@if (Site != null)
-{
-    <partial name="../Widgets/SiteHeader.cshtml" model="Site" />
 
-    <partial name="../Widgets/SubscribeModal.cshtml" model="Site" />
-}
+<partial name="../Widgets/SiteHeader.cshtml" model="site" />
+<partial name="../Widgets/SubscribeModal.cshtml" model="site" />

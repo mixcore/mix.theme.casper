@@ -1,7 +1,9 @@
 @using Mix.Theme.Blog
+@using System.Linq
 @{
 
     var Site = new Site(ViewBag.culture, Url);
+    string culture = ViewBag.culture as string;
     
     
     Site.Post = Model;
@@ -19,6 +21,14 @@
         tagValue,
         ViewBag.culture as string, 
         MixDatabaseNames.SYSTEM_TAG, 4, 1);
+
+        
+    var nextPrevPostByMeta = await Helper.GetNextPrevPostByMeta(
+        Model, 
+        ViewBag.culture as string);
+
+    Site.PreviousPost = nextPrevPostByMeta["PreviousPost"];
+    Site.NextPost = nextPrevPostByMeta["NextPost"];
 
 }
 <script type="application/ld+json">
@@ -48,7 +58,7 @@
 </script>
 
 <script>
-   console.log('Model', @Json.Serialize(Site))
+   console.log('nextPrevPostByMeta', @Json.Serialize(nextPrevPostByMeta))
 </script>
 <div class="post-template">
     
@@ -134,10 +144,10 @@
                     <!-- This is a responsive image, it loads different sizes depending on device
                     https://medium.freecodecamp.org/a-guide-to-responsive-images-with-ready-to-use-templates-c400bd65c433 -->
                     <img
-                        srcset="{{ImgUrl feature_image size="s"}} 300w,
-                                {{ImgUrl feature_image size="m"}} 600w,
-                                {{ImgUrl feature_image size="l"}} 1000w,
-                                {{ImgUrl feature_image size="xl"}} 2000w"
+                        srcset="@Site.ImgUrl(Site.Post.ImageUrl,"xl") 300w,
+                                @Site.ImgUrl(Site.Post.ImageUrl,"xl") 600w,
+                                @Site.ImgUrl(Site.Post.ImageUrl,"xl") 1000w,
+                                @Site.ImgUrl(Site.Post.ImageUrl,"xl") 2000w"
                         sizes="(max-width: 800px) 400px,
                             (max-width: 1170px) 1170px,
                                 2000px"
@@ -199,24 +209,26 @@
                     </article>
                 }
 
-                @for(int i=0;i<Site.Post.PostNavs.Count;i++){
+                <!-- @@for(int i=0;i<Site.Post.PostNavs.Count;i++){
                     if(Site.Post.PostNavs[i].RelatedPost!=null){
                         <partial name="../Widgets/PostCard.cshtml" model="Site.Post.PostNavs[i].RelatedPost"/>
                     }
                     
                     <script>
-                    console.log('Model', @Json.Serialize(Site.Post.PostNavs[i].RelatedPost))
+                    console.log('Model', @@Json.Serialize(Site.Post.PostNavs[i].RelatedPost))
                     </script>
-                }
-                {{!-- If there's a next post, display it using the same markup included from - partials/post-card.hbs --}}
-                {{#next_post}}
-                    {{> "post-card"}}
-                {{/next_post}}
+                } -->
 
-                {{!-- If there's a previous post, display it using the same markup included from - partials/post-card.hbs --}}
-                {{#prev_post}}
-                    {{> "post-card"}}
-                {{/prev_post}}
+                <!-- If there's a next post, display it using the same markup included from - partials/post-card.hbs -->
+                @if(Site.NextPost!=null){
+                    <partial name="../Widgets/PostCard.cshtml" model="Site.NextPost"/>
+                }
+
+                
+                <!-- If there's a previous post, display it using the same markup included from - partials/post-card.hbs -->
+                @if(Site.PreviousPost!=null){
+                    <partial name="../Widgets/PostCard.cshtml" model="Site.PreviousPost"/>
+                }
             </div>
         </div>
     </aside>

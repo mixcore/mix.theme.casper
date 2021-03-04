@@ -4,9 +4,9 @@
 <section class="subscribe-form">
     <h3 class="subscribe-form-title">Subscribe to @Site.Title</h3>
     <p class="subscribe-form-description">Get the latest posts delivered right to your inbox</p>
-    <form data-members-form="subscribe">
+    <form id="subscribeForm" data-members-form="subscribe">
         <div class="form-group">
-            <input class="subscribe-email" data-members-email placeholder="youremail@example.com" autocomplete="false" />
+            <input name="subscribedEmail" class="subscribe-email" data-members-email placeholder="youremail@example.com" autocomplete="false" pattern="[a-z0-9._%+-]+@@[a-z0-9.-]+\.[a-z]{2,}$" />
             <button class="button primary" type="submit">
                 <span class="button-content">Subscribe</span>
                 <span class="button-loader">{{> "icons/loader"}}</span>
@@ -20,3 +20,55 @@
         </div>
     </form>
 </section>
+
+
+    <script>
+    // Attach a submit handler to the form
+    $( "#subscribeForm" ).submit(function( event ) {
+
+    // Stop form from submitting normally
+    event.preventDefault();
+    
+    // Get some values from elements on the page:
+    var $form = $( this ),
+        email = $form.find( "input[name='subscribedEmail']" ).val(),
+
+        url = "/api/v1/rest/@ViewBag.culture/mix-database-data/client"; // https://api-docs.mixcore.org/api/Mix.Cms.Api.RestFul.Controllers.v1.ApiMixDatabaseDataController.html
+        
+        data = JSON.stringify({ 
+            "mixDatabaseName": "subscribe",
+                "obj": {
+                    "id": null,
+                    "subscribed_email": email
+                }    
+        });
+
+        $.ajax({
+            'type': 'POST',
+            'url': url,
+            'contentType': 'application/json',
+            'data': data,
+            'dataType': 'json',
+            // 'success': function() {
+            //     //alert( "success!" );
+            //     $('#subscribeModal .modal-body').html("Thanks for subscribing! We will keep you posted.");
+            //     $('#subscribeModal').modal('show');
+            // },
+            statusCode: {
+                200: function() {
+                    //$('#subscribeModal .modal-body').html("Thanks for subscribing! We will keep you posted.");
+                    //$('#subscribeModal').modal('show');
+                    $('#subscribeForm .message-success').show();
+                    $('#subscribeForm .message-error').hide();
+                },
+                400: function() {
+                    //$('#subscribeModal .modal-body').html("Submitted email is existed! Please resubmit with another email.");
+                    //$('#subscribeModal').modal('show');
+                    $('#subscribeForm .message-error').show();
+                    $('#subscribeForm .message-success').hide();
+                }
+            }
+        });
+    
+    });
+    </script>

@@ -1,12 +1,8 @@
-@{
-    var Site = Model; 
-}
-
 <!-- The big email subscribe modal content -->
-@if(Site.IsAllowMembers){
+@if(Model.IsAllowMembers){
     <div class="subscribe-notification subscribe-success-message">
         <a class="subscribe-close-button" href="javascript:;"></a>
-        You've successfully subscribed to @Site.Title!
+        You've successfully subscribed to @Model.Title!
     </div>
     <div class="subscribe-notification subscribe-failure-message">
         <a class="subscribe-close-button" href="javascript:;"></a>
@@ -17,16 +13,16 @@
         <a class="subscribe-close-overlay" href="#"></a>
         <a class="subscribe-close-button" href="#"></a>
         <div class="subscribe-overlay-content">
-            @if (@Site.Logo != String.Empty){
-                <img class="subscribe-overlay-logo" src="@Site.Logo" alt="@Site.Title" />
+            @if (@Model.Logo != String.Empty){
+                <img class="subscribe-overlay-logo" src="@Model.Logo" alt="@Model.Title" />
             }
             <div class="subscribe-form">
-                <h1 class="subscribe-overlay-title">Subscribe to @Site.Title</h1>
+                <h1 class="subscribe-overlay-title">Subscribe to @Model.Title</h1>
                 <p class="subscribe-overlay-description">Stay up to date! Get all the latest & greatest posts delivered straight to your inbox</p>
-                <form id="subscribeForm" data-members-form="subscribe">
+                <form id="subscribeModalForm" data-members-form="subscribe">
                     <div class="form-group">
                         <input name="subscribedEmail" class="subscribe-email" data-members-email placeholder="youremail@@example.com"
-                            autocomplete="false" />
+                            autocomplete="false" pattern="[a-z0-9._%+-]+@@[a-z0-9.-]+\.[a-z]{2,}$" />
                         <button class="button primary" type="submit">
                             <span class="button-content">Subscribe</span>
                             <span class="button-loader">{{> "icons/loader"}}</span>
@@ -46,7 +42,7 @@
         
     <script>
     // Attach a submit handler to the form
-    $( "#subscribeForm" ).submit(function( event ) {
+    $( "#subscribeModalForm" ).submit(function( event ) {
 
     // Stop form from submitting normally
     event.preventDefault();
@@ -55,7 +51,7 @@
     var $form = $( this ),
         email = $form.find( "input[name='subscribedEmail']" ).val(),
 
-        url = "/api/v1/rest/@ViewBag.culture/mix-database-data/client"; // https://api-docs.mixcore.org/api/Mix.Cms.Api.RestFul.Controllers.v1.ApiAttributeSetDataController.html
+        url = "/api/v1/rest/@ViewBag.culture/mix-database-data/client"; // https://api-docs.mixcore.org/api/Mix.Cms.Api.RestFul.Controllers.v1.ApiMixDatabaseDataController.html
         
         data = JSON.stringify({ 
             "mixDatabaseName": "subscribe",
@@ -78,12 +74,16 @@
             // },
             statusCode: {
                 200: function() {
-                    $('#subscribeModal .modal-body').html("Thanks for subscribing! We will keep you posted.");
-                    $('#subscribeModal').modal('show');
+                    //$('#subscribeModal .modal-body').html("Thanks for subscribing! We will keep you posted.");
+                    //$('#subscribeModal').modal('show');
+                    $('#subscribe .message-success').show();
+                    $('#subscribe .message-error').hide();
                 },
                 400: function() {
-                    $('#subscribeModal .modal-body').html("Submitted email is existed! Please resubmit with another email.");
-                    $('#subscribeModal').modal('show');
+                    //$('#subscribeModal .modal-body').html("Submitted email is existed! Please resubmit with another email.");
+                    //$('#subscribeModal').modal('show');
+                    $('#subscribe .message-error').show();
+                    $('#subscribe .message-success').hide();
                 }
             }
         });

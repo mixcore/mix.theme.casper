@@ -1,31 +1,38 @@
 @{
-    var Site = Model;
+    var site = Model;
+
+    //var SocialNavigation = MixCmsHelper.GetNavigation("social_navigation", ViewBag.Culture, Url);
 }
+<script>
+   console.log('Navigation', @Json.Serialize(site.Navigation))
+   console.log('SocialNavigation', @Json.Serialize(site.SocialNavigation))
+   console.log('SecondaryNavigation', @Json.Serialize(site.SecondaryNavigation))
+</script>
 <nav class="site-nav">
     <div class="site-nav-left-wrapper">
         <div class="site-nav-left">
-            @if (@Site.Logo != String.Empty){
-                <a class="site-nav-logo" href="@Site.Url"><img src="@Site.Logo" alt="@Site.Title" /></a>
+            @if (@site.Logo != String.Empty){
+                <a class="site-nav-logo" href="@site.Url"><img src="@site.Logo" alt="@site.Title" /></a>
             }else{
-                <a class="site-nav-logo" href="@Site.Url">@Site.Title</a>
+                <a class="site-nav-logo" href="@site.Url">@site.Title</a>
             }
             <div class="site-nav-content">
-                @if (Site.Navigation != null){
-                    <partial name="Navigation.cshtml" model="Site.Navigation"/>
+                @if (site.Navigation != null){
+                    <partial name="Navigation.cshtml" model="site.Navigation"/>
                 }
-                @if(Site.Post != null){
-                    <span class="nav-post-title @(Site.Logo != String.Empty? "dash" : "")">@Site.Post.Title</span>
+                @if(site.Post != null){
+                    <span class="nav-post-title @(site.Logo != String.Empty? "dash" : "")">@site.Post.Title</span>
                 }
             </div>
         </div>
     </div>
     <div class="site-nav-right">
-        @if (Site.SecondaryNavigation?.MenuItems != null && Site.SecondaryNavigation?.MenuItems.Count > 0){
-            <partial name="Navigation.cshtml" model="Site.SecondaryNavigation"/>
+        @if (site.SecondaryNavigation?.MenuItems != null && site.SecondaryNavigation?.MenuItems.Count > 0){
+            <partial name="Navigation.cshtml" model="site.SecondaryNavigation"/>
         }else{
-            @if (Site.SocialNavigation != null){
+            @if (site.SocialNavigation != null){
                 <div class="social-links">
-                @foreach (var item in Site.SocialNavigation.MenuItems)
+                @foreach (var item in site.SocialNavigation.MenuItems)
                 {
                     string activedClass = item.IsActive ? "nav-current" : string.Empty;
                     
@@ -34,7 +41,7 @@
                 </div>
             }
         }
-        @if(Site.IsAllowMembers)
+        @if(site.IsAllowMembers)
         {
             @if(!User.Identity.IsAuthenticated){
                 <a class="subscribe-button" href="#subscribe">Subscribe</a>
