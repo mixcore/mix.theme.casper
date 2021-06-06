@@ -1,0 +1,17 @@
+@{
+    string culture = ViewBag.culture;
+    var supportedCultures = await Mix.Cms.Lib.ViewModels.MixCultures.ReadViewModel.Repository.GetModelListAsync();
+}
+<ul class="nav">
+    @foreach (var item in supportedCultures.Data)
+    {
+        if(item.Specificulture != culture){
+            string url = MixCmsHelper.TranslateUrl(Context.Request.Path, culture, item.Specificulture);
+            <li class="nav-home"><a href="@url">@item.Alias</a></li>
+        }
+        else{
+            <li class="nav-home"><a href="">@item.Alias</a></li>
+        }
+        
+    }
+</ul>

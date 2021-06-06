@@ -18,17 +18,17 @@
     ">
 
     @if(Model.Image != null){
-    <a class="post-card-image-link" href="@postUrl">
+    <a class="post-card-image-link" href="@Model.DetailsUrl">
         <!-- This is a responsive image, it loads different sizes depending on device
         https://medium.freecodecamp.org/a-guide-to-responsive-images-with-ready-to-use-templates-c400bd65c433 -->
         <img class="post-card-image"
-            srcset="@Model.ImageUrl 300w,
-                    @Model.ImageUrl 600w,
-                    @Model.ImageUrl 1000w,
-                    @Model.ImageUrl 2000w"
+            srcset="@(Helper.ImgUrl(Model.ThumbnailUrl,"S")) 300w,
+                    @(Helper.ImgUrl(Model.ThumbnailUrl,"M")) 600w,
+                    @(Helper.ImgUrl(Model.ThumbnailUrl,"L")) 1000w,
+                    @(Helper.ImgUrl(Model.ThumbnailUrl,"XL")) 2000w"
             sizes="(max-width: 1000px) 400px, 700px"
             loading="lazy"
-            src="@Model.Image"
+            src="@(Helper.ImgUrl(Model.ThumbnailUrl,"M"))"
             alt="@Model.Title"
         />
     </a>
@@ -36,7 +36,7 @@
 
     <div class="post-card-content">
 
-        <a class="post-card-content-link" href="@postUrl">
+        <a class="post-card-content-link" href="@Model.DetailsUrl">
 
             <header class="post-card-header">
                 @foreach(var tag in Model.ListTag){

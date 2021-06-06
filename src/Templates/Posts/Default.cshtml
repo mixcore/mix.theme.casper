@@ -20,7 +20,7 @@
         Context, 
         tagValue,
         ViewBag.culture as string, 
-        MixDatabaseNames.SYSTEM_TAG, 4, 1);
+        MixDatabaseNames.SYSTEM_TAG);
 
         
     var nextPrevPostByMeta = await Helper.GetNextPrevPostByMeta(
@@ -55,10 +55,6 @@
          "@@id": "@Model.DetailsUrl"
       }
 }
-</script>
-
-<script>
-   console.log('nextPrevPostByMeta', @Json.Serialize(nextPrevPostByMeta))
 </script>
 <div class="post-template">
     

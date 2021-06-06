@@ -1,7 +1,8 @@
 @using Mix.Theme.Blog
 @{
+    string culture  = ViewBag.culture as string;
     var site = new Site(ViewBag.culture, Url);
-    var posts = await Helper.GetPosts(ViewBag.culture);
+    var posts = await Helper.GetPosts(culture);
 }
 <!-- Landing page -->
 <partial name="../Modules/HomeHeader.cshtml" model="site" />
@@ -9,7 +10,7 @@
 <!-- The main content area -->
 <main id="site-main" class="site-main outer">
     <div class="inner posts">
-        <div class="post-feed">
+        <div class="post-feed">            
             @{
                 int index = 0;
                 foreach (var post in posts.Data.Items)

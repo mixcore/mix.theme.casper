@@ -3,11 +3,11 @@
 
     //var SocialNavigation = MixCmsHelper.GetNavigation("social_navigation", ViewBag.Culture, Url);
 }
-<script>
+@*<script>
    console.log('Navigation', @Json.Serialize(site.Navigation))
    console.log('SocialNavigation', @Json.Serialize(site.SocialNavigation))
    console.log('SecondaryNavigation', @Json.Serialize(site.SecondaryNavigation))
-</script>
+</script>*@
 <nav class="site-nav">
     <div class="site-nav-left-wrapper">
         <div class="site-nav-left">
@@ -27,6 +27,7 @@
         </div>
     </div>
     <div class="site-nav-right">
+        <partial name="Cultures.cshtml"/>
         @if (site.SecondaryNavigation?.MenuItems != null && site.SecondaryNavigation?.MenuItems.Count > 0){
             <partial name="Navigation.cshtml" model="site.SecondaryNavigation"/>
         }else{
